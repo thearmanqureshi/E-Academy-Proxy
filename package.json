@@ -1,8 +1,10 @@
 {
     "name": "vercel-proxy",
     "version": "1.0.0",
+    "type": "module",
     "main": "api/check-backend.js",
     "dependencies": {
       "node-fetch": "^3.3.2"
     }
-}
+  }
+  
