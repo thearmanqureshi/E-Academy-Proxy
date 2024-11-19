@@ -166,6 +166,13 @@
             width: 0%;
             transition: width 1s linear;
         }
+
+        #manualRefreshMessage {
+            display: none;
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #ff0000;
+        }
     </style>
 </head>
 
@@ -194,45 +201,46 @@
                 <div class="progress-fill" id="progressFill"></div>
             </div>
             <p class="status-message">Thank you for your patience!</p>
+            <p id="manualRefreshMessage">If the page doesn't refresh automatically, please <a
+                    href="javascript:location.reload();">refresh manually</a>.</p>
         </div>
     </div>
 
     <script>
-    const renderBackendURL = 'https://eacademy-project.onrender.com';
-    const MAX_RETRIES = 11;  // Increased retries to handle long spin-up time
-    const RETRY_INTERVAL = 10000; // Retry every 10 seconds
-    let retryCount = 0;
+        const PROGRESS_DURATION = 60000; // 1 minute in milliseconds
+        const REFRESH_DELAY = 52000; // 52 seconds in milliseconds
 
-    async function checkBackendWithRetry() {
-      try {
-        const response = await fetch(renderBackendURL, {
-          method: 'HEAD',
-          timeout: 10000, // Increased timeout to 10 seconds
-        });
+        let progress = 0;
 
-        if (response.ok) {
-          // If backend is reachable, redirect the user
-          window.location.href = renderBackendURL;
-        } else {
-          throw new Error('Backend responded with an error');
+
+        function updateProgressBar() {
+            const interval = 1000;
+            const totalIntervals = PROGRESS_DURATION / interval;
+            const increment = 100 / totalIntervals;
+
+            const progressInterval = setInterval(() => {
+                progress += increment;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(progressInterval);
+                    showManualRefreshMessage();
+                }
+                document.getElementById('progressFill').style.width = `${progress}%`;
+            }, interval);
         }
-      } catch (err) {
-        console.error('Backend check failed:', err);
 
-        if (retryCount < MAX_RETRIES) {
-          retryCount++;
-          console.log(`Retrying backend check (${retryCount}/${MAX_RETRIES})...`);
-          setTimeout(checkBackendWithRetry, RETRY_INTERVAL); // Retry after 10 seconds
-        } else {
-          console.log('Max retries reached, unable to connect to backend.');
-          // After all retries, display a message to the user indicating the service is starting up
-          document.body.innerHTML = "<h2>Please refresh the webpage manually as we are unable to currently refresh it for you</h2>";
+        function showManualRefreshMessage() {
+            document.getElementById('manualRefreshMessage').style.display = 'block';
         }
-      }
-    }
 
-    // Initiate the first backend check
-    checkBackendWithRetry();
+        function autoRefreshPage() {
+            setTimeout(() => {
+                location.reload();
+            }, REFRESH_DELAY);
+        }
+
+        updateProgressBar();
+        autoRefreshPage();
     </script>
 </body>
 
