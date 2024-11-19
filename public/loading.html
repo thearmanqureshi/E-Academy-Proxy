@@ -198,39 +198,41 @@
     </div>
 
     <script>
-        const spinupOverlay = document.getElementById('spinupOverlay');
-        const progressFill = document.getElementById('progressFill');
+    const renderBackendURL = 'https://eacademy-project.onrender.com';
+    const MAX_RETRIES = 11;  // Increased retries to handle long spin-up time
+    const RETRY_INTERVAL = 10000; // Retry every 10 seconds
+    let retryCount = 0;
 
-        spinupOverlay.classList.add('show');
+    async function checkBackendWithRetry() {
+      try {
+        const response = await fetch(renderBackendURL, {
+          method: 'HEAD',
+          timeout: 10000, // Increased timeout to 10 seconds
+        });
 
-        let progress = 0;
-        const interval = setInterval(() => {
-            if (progress < 100) {
-                progress += 2;
-                progressFill.style.width = `${progress}%`;
-            } else {
-                clearInterval(interval);
-                setTimeout(() => {
-                    spinupOverlay.classList.remove('show');
-                }, 1000);
-            }
-        }, 500);
-
-        function checkBackend() {
-            fetch('https://eacademy-project.onrender.com', { method: 'HEAD' })
-                .then(response => {
-                    if (response.ok) {
-                        // Redirect when backend is reachable
-                        window.location.href = 'https://eacademy-project.onrender.com';
-                    }
-                })
-                .catch(error => {
-                    console.log("Backend is not available, retrying...");
-                });
+        if (response.ok) {
+          // If backend is reachable, redirect the user
+          window.location.href = renderBackendURL;
+        } else {
+          throw new Error('Backend responded with an error');
         }
+      } catch (err) {
+        console.error('Backend check failed:', err);
 
-        // Check backend availability every 5 seconds
-        const backendCheckInterval = setInterval(checkBackend, 5000);
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          console.log(`Retrying backend check (${retryCount}/${MAX_RETRIES})...`);
+          setTimeout(checkBackendWithRetry, RETRY_INTERVAL); // Retry after 10 seconds
+        } else {
+          console.log('Max retries reached, unable to connect to backend.');
+          // After all retries, display a message to the user indicating the service is starting up
+          document.body.innerHTML = "<h2>Please refresh the webpage manually as we are unable to currently refresh it for you</h2>";
+        }
+      }
+    }
+
+    // Initiate the first backend check
+    checkBackendWithRetry();
     </script>
 </body>
 
