@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>E Academy | Starting Services</title>
@@ -61,7 +62,7 @@
             transform: translate(-50%, -130%);
             opacity: 0;
             border-radius: 50px;
-            box-shadow: 0 0 3px rgba(0,0,0,0.2);
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
             animation: fade458 1s linear infinite;
         }
 
@@ -126,16 +127,48 @@
         }
 
         @keyframes fade458 {
-            from { opacity: 1; }
-            to { opacity: 0.25; }
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0.25;
+            }
         }
 
-        .status-title { font-size: 24px; color: #fff; margin-top: 30px; font-weight: bold; }
-        .status-message { font-size: 16px; color: rgba(200, 200, 200, 0.95); margin-top: 15px; line-height: 1.4; }
-        .progress-bar { width: 100%; max-width: 300px; height: 6px; background-color: rgba(100, 100, 100, 0.5); border-radius: 3px; overflow: hidden; margin: 20px auto; }
-        .progress-fill { height: 100%; background-color: #fff; width: 0%; transition: width 1s linear; }
+        .status-title {
+            font-size: 24px;
+            color: #fff;
+            margin-top: 30px;
+            font-weight: bold;
+        }
+
+        .status-message {
+            font-size: 16px;
+            color: rgba(200, 200, 200, 0.95);
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 300px;
+            height: 6px;
+            background-color: rgba(100, 100, 100, 0.5);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 20px auto;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #fff;
+            width: 0%;
+            transition: width 1s linear;
+        }
     </style>
 </head>
+
 <body>
     <div class="status-overlay" id="spinupOverlay">
         <div class="status-content">
@@ -155,7 +188,8 @@
             </div>
 
             <h2 class="status-title">Starting up the services</h2>
-            <p class="status-message">As we are using render free tier services the servers spin down due to inactivity. Our website will be live soon.</p>
+            <p class="status-message">As we are using render free tier services the servers spin down due to inactivity.
+                Our website will be live soon.</p>
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
@@ -181,6 +215,23 @@
                 }, 1000);
             }
         }, 500);
+
+        function checkBackend() {
+            fetch('https://eacademy-project.onrender.com', { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        // Redirect when backend is reachable
+                        window.location.href = 'https://eacademy-project.onrender.com';
+                    }
+                })
+                .catch(error => {
+                    console.log("Backend is not available, retrying...");
+                });
+        }
+
+        // Check backend availability every 5 seconds
+        const backendCheckInterval = setInterval(checkBackend, 5000);
     </script>
 </body>
+
 </html>
