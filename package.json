@@ -4,7 +4,7 @@
     "type": "module",
     "main": "api/check-backend.js",
     "dependencies": {
-      "node-fetch": "^3.3.2"
+      "node-fetch": "^2.6.9"
     }
   }
   
