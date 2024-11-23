@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E Academy | Starting Services</title>
+    <title>E Academy | Service Status</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,7 +12,12 @@
         body {
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(90deg, rgba(93,93,93,1) 0%, rgba(0,0,0,1) 50%, rgba(79,79,79,1) 100%);
+            background: radial-gradient(
+                100% 100% at 50% 50%,
+                rgba(45, 45, 45, 0.95) 0%,
+                rgba(32, 32, 32, 0.98) 47.92%,
+                rgba(23, 23, 23, 1) 100%
+            );
             color: #000;
             display: flex;
             justify-content: center;
@@ -67,7 +71,6 @@
             position: absolute;
             left: 50%;
             top: 50%;
-            transform: translate(-50%, -130%);
             opacity: 0;
             border-radius: 50px;
             box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
@@ -107,6 +110,12 @@
             max-width: 300px;
         }
 
+        .error-message {
+            color: #ff6b6b;
+            margin-top: 15px;
+            display: none;
+        }
+
         .progress-bar {
             width: 100%;
             max-width: 300px;
@@ -124,63 +133,47 @@
             transition: width 1s linear;
         }
 
-        #manualRefreshMessage {
+        #statusContainer {
+            margin: 15px 0 15px 0;
             display: none;
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #ff0000;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* Small devices (landscape phones, 576px and up) */
+        #statusIndicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #FFA500;
+            display: inline-block;
+        }
+
+        .retry-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 15px 0 15px 0;
+            display: none;
+        }
+
+        .retry-button:hover {
+            background-color: #45a049;
+        }
+
         @media screen and (max-width: 576px) {
             .status-content {
                 width: 95%;
                 padding: 15px;
             }
-
-            .status-title {
-                font-size: 1.3rem;
-            }
-
-            .status-message {
-                font-size: 0.9rem;
-            }
-
-            .loader {
-                width: 44px;
-                height: 44px;
-            }
-        }
-
-        /* Extra small devices (portrait phones, less than 576px) */
-        @media screen and (max-width: 375px) {
-            .status-content {
-                width: 98%;
-                padding: 10px;
-            }
-
-            .status-title {
-                font-size: 1.2rem;
-            }
-
-            .status-message {
-                font-size: 0.8rem;
-            }
-
-            .loader {
-                width: 36px;
-                height: 36px;
-            }
-
-            .progress-bar {
-                max-width: 250px;
-            }
         }
     </style>
 </head>
-
 <body>
-    <div class="status-overlay" id="spinupOverlay">
+    <div class="status-overlay">
         <div class="status-content">
             <div class="loader">
                 <div class="bar1"></div>
@@ -197,53 +190,99 @@
                 <div class="bar12"></div>
             </div>
 
-            <h2 class="status-title">Starting up the services</h2>
-            <p class="status-message">As we are using render free tier web service the instance spins down with inactivity.
-                Our website will be live soon.</p>
+            <h2 class="status-title">Connecting to E Academy</h2>
+            <p class="status-message">We're starting up the service. This may take a few minutes as we're using a free tier service.</p>
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
-            <p class="status-message">Thank you for your patience!</p>
-            <p id="manualRefreshMessage">If the page doesn't refresh automatically, please <a
-                    href="javascript:location.reload();">refresh manually</a>.</p>
+            <div id="statusContainer">
+                <span id="statusIndicator"></span>
+                <span id="serviceStatus">Checking Connection...</span>
+            </div>
+            <p class="error-message" id="errorMessage">Unable to connect to the service. This could be because:</p>
+            <ul class="error-message" id="errorList" style="text-align: left; margin-top: 5px;">
+                <li>The service is currently down for maintenance</li>
+                <li>Render isn't working correctly</li>
+            </ul>
+            <button class="retry-button" id="retryButton" onclick="retryConnection()">Try Again</button>
         </div>
     </div>
 
     <script>
-        const PROGRESS_DURATION = 60000; // 1 minute in milliseconds
-        const REFRESH_DELAY = 52000; // 52 seconds in milliseconds
-
+        const INITIAL_WAIT = 30000; // 30 seconds before showing error
+        const CHECK_INTERVAL = 10000; // Check every 10 seconds
+        const SERVICE_URL = 'https://eacademy-project.onrender.com';
+        
+        let retryCount = 0;
+        let progressInterval;
         let progress = 0;
 
         function updateProgressBar() {
-            const interval = 1000;
-            const totalIntervals = PROGRESS_DURATION / interval;
-            const increment = 100 / totalIntervals;
-
-            const progressInterval = setInterval(() => {
-                progress += increment;
+            clearInterval(progressInterval);
+            progressInterval = setInterval(() => {
+                progress += 0.5;
                 if (progress >= 100) {
                     progress = 100;
                     clearInterval(progressInterval);
-                    showManualRefreshMessage();
+                    showError();
                 }
                 document.getElementById('progressFill').style.width = `${progress}%`;
-            }, interval);
+            }, 1000);
         }
 
-        function showManualRefreshMessage() {
-            document.getElementById('manualRefreshMessage').style.display = 'block';
+        function showError() {
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'block');
+            document.getElementById('retryButton').style.display = 'block';
+            document.querySelector('.loader').style.display = 'none';
+            document.getElementById('statusContainer').style.display = 'none';
         }
 
-        function autoRefreshPage() {
-            setTimeout(() => {
-                location.reload();
-            }, REFRESH_DELAY);
+        async function checkServiceStatus() {
+            try {
+                const response = await fetch(SERVICE_URL + '/api/healthz', {
+                    mode: 'no-cors'
+                });
+                return true;
+            } catch (error) {
+                return false;
+            }
         }
 
-        updateProgressBar();
-        autoRefreshPage();
+        async function startServiceCheck() {
+            updateProgressBar();
+            
+            // Initial delay before showing error
+            setTimeout(async () => {
+                const isAvailable = await checkServiceStatus();
+                if (!isAvailable) {
+                    showError();
+                }
+            }, INITIAL_WAIT);
+
+            // Regular status checks
+            const checkStatus = async () => {
+                const isAvailable = await checkServiceStatus();
+                if (isAvailable) {
+                    window.location.href = SERVICE_URL;
+                }
+            };
+
+            setInterval(checkStatus, CHECK_INTERVAL);
+        }
+
+        function retryConnection() {
+            retryCount++;
+            progress = 0;
+            document.getElementById('progressFill').style.width = '0%';
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+            document.getElementById('retryButton').style.display = 'none';
+            document.querySelector('.loader').style.display = 'block';
+            document.getElementById('statusContainer').style.display = 'flex';
+            updateProgressBar();
+            startServiceCheck();
+        }
+
+        startServiceCheck();
     </script>
 </body>
-
 </html>
