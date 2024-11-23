@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     // Send a HEAD request to check if the Render backend is reachable
     const response = await fetch(renderBackendURL, {
       method: "HEAD",
-      timeout: 5000, // Timeout in milliseconds
+      timeout: 3000, // 3 Sec in milliseconds
     });
 
     if (response.ok) {
