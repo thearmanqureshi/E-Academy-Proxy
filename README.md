@@ -17,7 +17,7 @@ E-Academy is a comprehensive e-learning platform that incorporates advanced secu
 
 - thearmanqureshi : On this GitHub Account the repositories were created to be deployed on Render
      - [thearmanqureshi/E-Academy](https://github.com/thearmanqureshi/E-Academy) : Contains the main project
-     - thearmanqureshi/E-Academy : Contains the E-Academy Proxy Webpage
+     - thearmanqureshi/E-Academy-Proxy : Contains the E-Academy Proxy Webpage
      - [thearmanqureshi/E-Academy-Model-Host](https://github.com/thearmanqureshi/E-Academy-Model-Host) : Contains the tensorflow-lite model and scaler for the prediction model
 
 - [anshh-arora/E-Academy](https://github.com/anshh-arora/E-Academy) : On this GitHub Account's Repositorie our team members worked on the E-Acaedmy Project
