@@ -70,26 +70,18 @@ graph TD
 
 ## Repository Structure
 ```
-E-Academy/
+E-Academy-Proxy/
 │
-├── static/                 # Static files (CSS, JS, Images)
-│   ├── css/                # Stylesheet files
-│   ├── js/                 # JavaScript files
-│   └── images/             # Image assets
+├── api/                 
+│   └── check-backend.js
 │
-├── templates/              # HTML templates
-│   ├── index.html          # Home template
-│   ├── student.html        # Student Home template
-│   ├── teacher.html        # Teacher's Dashboard template
-│   └── ...
+├── public/
+│   └── loading.html
 │
-├── app.py                  # Contain python flask app
-├── config.py               # Configuration settings
-├── wsgi.py                 # WSGI entry point
-├── requirements.txt        # Project dependencies
-├── LICENSE                 # Project's License
-├── Readme.md               # Project's Readme 
-└── procfile                # Procfile for Render
+├── package.json
+├── LICENSE
+├── Readme.md
+└── vercel.json
 ```
 ## Installation and Setup
 
